@@ -6,31 +6,60 @@ public class Spawner : MonoBehaviour
 {
     public GameObject[] bulletPrefab;
     public GameObject desdeDondeSaleLaBala;
+    public float tiempoDeDisparo;
     public float velocidadBala;
+    private float tiempoDesdeUltimaBala;
+    private float tiempoDesdeUltimaSpace;
+    private bool tamanioDuplicado;
     // Start is called before the first frame update
     void Start()
     {
-        InvokeRepeating("SpawnBullets", 2f, 1.5f);
         velocidadBala = 15f;
-
+        tiempoDeDisparo = 1f;
+        tiempoDesdeUltimaBala = 0;
+        tiempoDesdeUltimaSpace = 0;
+        tamanioDuplicado = false;
     }
 
-    // Update is called once per frame
     void Update()
     {
+        tiempoDesdeUltimaBala += Time.deltaTime;
+        tiempoDesdeUltimaSpace += Time.deltaTime;
+
+        if (Input.GetKeyDown(KeyCode.Space) && tiempoDesdeUltimaSpace > 1.5f)
+        {
+            SpawnBullets(true);
+            tiempoDesdeUltimaSpace = 0;
+            tiempoDesdeUltimaBala += 0.5f;
+        }
+        else if (tiempoDesdeUltimaBala >= tiempoDeDisparo)
+        {
+            tiempoDesdeUltimaBala = 0;
+            SpawnBullets();
+        }
+
 
     }
 
-    void SpawnBullets()
+    void SpawnBullets(bool doble = false)
     {
-        int enemyIndex = Random.Range(0, bulletPrefab.Length);
-        GameObject balaInstanciada = Instantiate(bulletPrefab[enemyIndex], desdeDondeSaleLaBala.transform.position, Quaternion.identity);
+        GameObject balaTemplate = bulletPrefab[Random.Range(0, bulletPrefab.Length)];
+        if (doble)
+        {
+            balaTemplate.transform.localScale *= 2;
+            tamanioDuplicado = false;
+        }
+        else
+        {
+            balaTemplate.transform.localScale = new Vector3(1, 1, 1);
+        }
 
-        float velocidad = balaInstanciada.GetComponent<BulletController>().bulletSpeed;
-
+        GameObject balaInstanciada = Instantiate(balaTemplate, desdeDondeSaleLaBala.transform.position, Quaternion.identity);
         balaInstanciada.transform.rotation = this.transform.rotation;
         Rigidbody rigidbody = balaInstanciada.GetComponent<Rigidbody>();
-        rigidbody.AddForce(this.transform.forward * -1 * velocidad, ForceMode.Impulse);
+        rigidbody.AddForce((this.transform.forward * -1 ) * 
+                            balaInstanciada.GetComponent<BulletController>().bulletSpeed, 
+                            ForceMode.Impulse);
 
     }
 }

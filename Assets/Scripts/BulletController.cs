@@ -9,22 +9,25 @@ public class BulletController : MonoBehaviour
 
     [Header("Damage")]
     public float bulletDamage = 5;
-
+    [Range(1,25)]
+    public float tiempoLimite;
+    public float tiempoVida;
     
     // Start is called before the first frame update
     void Start()
     {
- 
+        tiempoLimite = 5;
+        tiempoVida = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
-       
-        if (this.transform.position.z < -25 || this.transform.position.z >25 || 
-        this.transform.position.x < -25 || this.transform.position.x >25)
+        tiempoVida += Time.deltaTime;
+
+        if (tiempoVida > tiempoLimite)
         {
-            Destroy(this.gameObject);
+            Destroy(this.gameObject);   
         }
     }
 
